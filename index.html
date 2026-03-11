@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>沐蜜美學 ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAF7F5;--surface:#FFFFFF;--surface2:#F5F0EE;--surface3:#EDE6E3;
+  --border:rgba(180,120,130,0.15);--border2:rgba(180,120,130,0.25);
+  --rose:#B5626B;--rose-lt:#C4717A;--rose-dk:#8B4D54;--rose-dim:rgba(181,98,107,0.10);
+  --gold:#A07830;--gold-dim:rgba(160,120,48,0.10);
+  --sage:#4A8A52;--sage-dim:rgba(74,138,82,0.10);
+  --sky:#3A6E9E;--sky-dim:rgba(58,110,158,0.10);
+  --text:#2A1F20;--text2:#6B4F52;--text3:#9E8082;
+  --red:#B03030;--amber:#906010;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 2px 16px rgba(180,120,130,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:52px;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;gap:10px;
+}
+.brand{font-family:'Playfair Display',serif;font-size:17px;color:var(--rose);white-space:nowrap}
+.brand em{color:var(--gold);font-style:italic}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.month-btn{
+  background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);padding:6px 12px;border-radius:20px;
+  font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;
+  white-space:nowrap;
+}
+.month-btn:active{background:var(--surface3)}
+.icon-btn{
+  width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;
+}
+.icon-btn:active{background:var(--surface3)}
+
+/* ── BOTTOM NAV (mobile first) ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  height:60px;background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:stretch;
+}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;cursor:pointer;
+  border:none;background:none;color:var(--text3);
+  font-size:10px;font-family:'Noto Sans TC',sans-serif;
+  transition:color .15s;padding:4px 2px;
+}
+.bnav-item .bi{font-size:20px;line-height:1}
+.bnav-item.active{color:var(--rose)}
+.bnav-item.active .bi{filter:drop-shadow(0 0 6px rgba(196,113,122,0.6))}
+
+/* ── SIDEBAR (desktop) ── */
+.sidebar{
+  display:none;
+  position:fixed;top:52px;left:0;bottom:0;width:200px;
+  background:var(--surface);border-right:1px solid var(--border2);
+  flex-direction:column;overflow-y:auto;padding:12px 0;z-index:100;
+}
+@media(min-width:768px){
+  .sidebar{display:flex}
+  .bottom-nav{display:none}
+  .main{margin-left:200px}
+}
+.nav-label{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;
+  color:var(--text3);padding:14px 16px 4px;text-transform:uppercase;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;cursor:pointer;color:var(--text2);
+  font-size:13px;border:none;background:none;width:100%;text-align:left;
+  font-family:'Noto Sans TC',sans-serif;
+  border-left:2px solid transparent;transition:all .15s;
+}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{color:var(--rose);border-left-color:var(--rose);background:var(--rose-dim)}
+.nav-item .ni{font-size:16px;width:22px;text-align:center}
+
+/* ── MAIN ── */
+.main{
+  margin-top:52px;padding:16px;
+  min-height:calc(100vh - 52px - 60px);
+  padding-bottom:76px;
+}
+@media(min-width:768px){
+  .main{padding:24px 28px;padding-bottom:24px;min-height:calc(100vh - 52px)}
+}
+
+/* ── PAGE ── */
+.page{display:none}.page.active{display:block}
+.page-title{
+  font-family:'Playfair Display',serif;font-size:24px;
+  color:var(--rose-lt);margin-bottom:4px;
+}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+
+/* ── CARDS & PANELS ── */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;margin-bottom:14px;
+}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.card-title{font-size:13px;font-weight:500;color:var(--text2)}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(min-width:600px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+.kpi{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px 12px;
+  border-top:2px solid var(--rose);
+}
+.kpi.g{border-top-color:var(--sage)}
+.kpi.a{border-top-color:var(--gold)}
+.kpi.b{border-top-color:var(--sky)}
+.kpi-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--text3);margin-bottom:6px}
+.kpi-val{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);line-height:1}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:5px}
+
+/* ── BADGE ── */
+.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:20px}
+.bg{background:var(--sage-dim);color:var(--sage)}
+.ba{background:var(--gold-dim);color:var(--gold)}
+.br{background:rgba(192,64,64,.15);color:var(--red)}
+.bb{background:var(--sky-dim);color:var(--sky)}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;margin:0 -16px}
+@media(min-width:768px){.tbl-wrap{margin:0}}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px}
+th{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;
+  color:var(--text3);padding:8px 12px;text-align:left;
+  border-bottom:1px solid var(--border);background:var(--surface2);
+  white-space:nowrap;
+}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.num{font-family:'DM Mono',monospace;font-size:12px;text-align:right;white-space:nowrap}
+
+/* ── TEACHER TAGS ── */
+.tt{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-family:'DM Mono',monospace}
+.tt-l{background:var(--gold-dim);color:var(--gold)}
+.tt-w{background:var(--sky-dim);color:var(--sky)}
+.tt-x{background:var(--sage-dim);color:var(--sage)}
+.ct{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px}
+.ct-自帶客{background:var(--rose-dim);color:var(--rose-lt)}
+.ct-店客{background:var(--sky-dim);color:var(--sky)}
+.ct-轉介在場{background:var(--sage-dim);color:var(--sage)}
+.ct-轉介不在場{background:var(--gold-dim);color:var(--gold)}
+.ct-員購{background:rgba(255,255,255,.05);color:var(--text3)}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:600px){.form-grid-4{grid-template-columns:repeat(4,1fr)}}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;color:var(--text3);text-transform:uppercase}
+input,select,textarea{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  font-family:'Noto Sans TC',sans-serif;font-size:14px;color:var(--text);
+  outline:none;transition:border .15s;width:100%;
+}
+input:focus,select:focus{border-color:var(--rose)}
+input[readonly]{background:var(--surface2);color:var(--sage);border-color:transparent}
+select option{background:var(--surface)}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;
+  font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:500;
+  transition:all .15s;white-space:nowrap;
+}
+.btn-p{background:var(--rose);color:#fff}
+.btn-p:active{background:var(--rose-dk)}
+.btn-g{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-g:active{background:var(--surface3)}
+.btn-d{background:rgba(192,64,64,.15);color:var(--red);border:1px solid rgba(192,64,64,.2)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
+.btn-w{width:100%}
+
+/* ── ALERT ── */
+.alert{padding:11px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px;line-height:1.6}
+.alert-w{background:rgba(192,128,32,.12);border-left:3px solid var(--amber);color:#DDB060}
+.alert-g{background:var(--sage-dim);border-left:3px solid var(--sage);color:#90C897}
+.alert-i{background:var(--sky-dim);border-left:3px solid var(--sky);color:#88B8E0}
+.alert-r{background:rgba(192,64,64,.12);border-left:3px solid var(--red);color:#E08080}
+
+/* ── STAT ROW ── */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:12px;color:var(--text2)}
+.stat-val{font-family:'DM Mono',monospace;font-size:13px}
+
+/* ── PROGRESS ── */
+.prog{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-top:4px}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s}
+
+/* ── CHART (CSS bars) ── */
+.chart-bar-wrap{display:flex;flex-direction:column;gap:8px}
+.chart-bar{display:flex;align-items:center;gap:8px}
+.chart-bar-label{font-size:11px;color:var(--text2);width:60px;text-align:right;flex-shrink:0}
+.chart-bar-track{flex:1;height:20px;background:var(--surface3);border-radius:4px;overflow:hidden;position:relative}
+.chart-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-family:'DM Mono',monospace;font-size:10px;color:#fff;transition:width .6s}
+.chart-bar-amt{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);flex-shrink:0;min-width:60px;text-align:right}
+
+/* ── CLIENT CARD ── */
+.client-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;
+}
+.client-card:hover{background:var(--surface3)}
+.client-name{font-weight:500;font-size:14px}
+.client-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.client-stats{text-align:right;flex-shrink:0}
+.client-total{font-family:'DM Mono',monospace;font-size:14px;color:var(--rose-lt)}
+.client-badge{font-size:10px;margin-top:3px}
+
+/* ── CALENDAR ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-header{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-align:center;padding:4px 0}
+.cal-day{
+  min-height:40px;background:var(--surface2);border-radius:6px;
+  padding:4px;cursor:pointer;border:1px solid transparent;transition:all .15s;
+}
+.cal-day:hover{border-color:var(--rose)}
+.cal-day.today{border-color:var(--rose-lt)}
+.cal-day.other-month{opacity:.3}
+.cal-day.has-event{border-color:var(--rose-dim)}
+.cal-day-num{font-size:11px;color:var(--text3);text-align:right}
+.cal-event{font-size:9px;background:var(--rose-dim);color:var(--rose-lt);border-radius:3px;padding:1px 4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-nav-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--text)}
+
+/* ── TREND CHART ── */
+.trend-wrap{display:flex;align-items:flex-end;gap:6px;height:100px;padding-top:10px}
+.trend-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.trend-bar{width:100%;background:var(--surface3);border-radius:4px 4px 0 0;transition:height .5s;min-height:2px}
+.trend-bar.active{background:var(--rose)}
+.trend-month{font-family:'DM Mono',monospace;font-size:8px;color:var(--text3)}
+.trend-amt{font-family:'DM Mono',monospace;font-size:8px;color:var(--text3)}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--border);margin:14px 0}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty .ei{font-size:36px;margin-bottom:10px}
+.empty p{font-size:13px}
+
+/* ── MODAL ── */
+.modal-bg{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(42,20,22,0.4);backdrop-filter:blur(6px);
+  align-items:flex-end;justify-content:center;
+}
+@media(min-width:600px){.modal-bg{align-items:center}}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius) var(--radius) 0 0;
+  width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+  padding:20px 16px 32px;animation:slideUp .25s ease;
+}
+@media(min-width:600px){.modal{border-radius:var(--radius);padding:24px}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--rose-lt);margin-bottom:16px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--sage);color:#fff;padding:10px 24px;border-radius:20px;
+  font-size:13px;display:none;z-index:999;white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+@media(min-width:768px){#toast{bottom:24px}}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+
+/* ── GRID UTILS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:599px){.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">沐蜜 <em>ERP</em></div>
+  <div class="topbar-right">
+    <button class="month-btn" id="month-display" onclick="toggleMonthPicker()">載入中</button>
+    <button class="icon-btn" onclick="showPage('settings')" title="設定">⚙️</button>
+  </div>
+</div>
+
+<!-- MONTH PICKER (hidden dropdown) -->
+<div id="month-picker" style="
+  display:none;position:fixed;top:52px;right:12px;z-index:300;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:8px;width:200px;
+  box-shadow:var(--shadow);max-height:300px;overflow-y:auto;
+">
+  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);padding:4px 8px 8px;letter-spacing:.1em">選擇月份</div>
+  <div id="month-list"></div>
+</div>
+
+<!-- SIDEBAR (desktop) -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-label">主控台</div>
+  <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)">
+    <span class="ni">📊</span>總覽儀表板
+  </button>
+  <div class="nav-label">日常作業</div>
+  <button class="nav-item" data-page="service" onclick="showPage('service',this)">
+    <span class="ni">✍️</span>服務記錄
+  </button>
+  <button class="nav-item" data-page="clients" onclick="showPage('clients',this)">
+    <span class="ni">👤</span>客戶名單
+  </button>
+  <button class="nav-item" data-page="prepay" onclick="showPage('prepay',this)">
+    <span class="ni">💳</span>儲值管理
+  </button>
+  <button class="nav-item" data-page="inventory" onclick="showPage('inventory',this)">
+    <span class="ni">📦</span>庫存進貨
+  </button>
+  <div class="nav-label">人員</div>
+  <button class="nav-item" data-page="teachers" onclick="showPage('teachers',this)">
+    <span class="ni">👩‍🔬</span>老師結算
+  </button>
+  <button class="nav-item" data-page="ep" onclick="showPage('ep',this)">
+    <span class="ni">🛍️</span>婉甄員購
+  </button>
+  <div class="nav-label">財務</div>
+  <button class="nav-item" data-page="finance" onclick="showPage('finance',this)">
+    <span class="ni">💰</span>月度報表
+  </button>
+  <button class="nav-item" data-page="annual" onclick="showPage('annual',this)">
+    <span class="ni">📈</span>年度趨勢
+  </button>
+  <button class="nav-item" data-page="boss" onclick="showPage('boss',this)">
+    <span class="ni">👑</span>老闆薪資
+  </button>
+  <div class="nav-label">排班</div>
+  <button class="nav-item" data-page="calendar" onclick="showPage('calendar',this)">
+    <span class="ni">📅</span>行事曆
+  </button>
+  <div style="margin-top:auto;padding:16px;border-top:1px solid var(--border)">
+    <button class="nav-item" data-page="settings" onclick="showPage('settings',this)">
+      <span class="ni">⚙️</span>設定 & 備份
+    </button>
+  </div>
+</nav>
+
+<!-- BOTTOM NAV (mobile) -->
+<div class="bottom-nav">
+  <button class="bnav-item active" data-page="dashboard" onclick="showPage('dashboard',this)"><span class="bi">📊</span>總覽</button>
+  <button class="bnav-item" data-page="service" onclick="showPage('service',this)"><span class="bi">✍️</span>記錄</button>
+  <button class="bnav-item" data-page="clients" onclick="showPage('clients',this)"><span class="bi">👤</span>客戶</button>
+  <button class="bnav-item" data-page="finance" onclick="showPage('finance',this)"><span class="bi">💰</span>財務</button>
+  <button class="bnav-item" data-page="settings" onclick="showPage('settings',this)"><span class="bi">⚙️</span>更多</button>
+</div>
+
+<main class="main">
+
+<!-- ══ DASHBOARD ══ -->
+<div id="page-dashboard" class="page active">
+  <div class="page-title">總覽</div>
+  <div class="page-sub" id="db-sub">本月即時數據</div>
+  <div id="db-alerts"></div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">本月收入</div><div class="kpi-val" id="db-rev">NT$0</div><div class="kpi-sub" id="db-rev-sub">目標 NT$80,000+</div></div>
+    <div class="kpi g"><div class="kpi-label">毛利率</div><div class="kpi-val" id="db-gp">0%</div><div id="db-gp-b"></div></div>
+    <div class="kpi a"><div class="kpi-label">淨利率</div><div class="kpi-val" id="db-np">0%</div><div id="db-np-b"></div></div>
+    <div class="kpi b"><div class="kpi-label">老闆月薪</div><div class="kpi-val" id="db-sal">NT$0</div><div class="kpi-sub">目標 NT$40,000+</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">老師毛貢獻</div></div>
+      <div id="db-teacher"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">服務收入分佈</div></div>
+      <div id="db-svc-dist"></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-header"><div class="card-title">費用摘要</div></div>
+      <div id="db-exp"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">儲值負債</div></div>
+      <div id="db-prepay"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">健康燈號</div></div>
+      <div id="db-health"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SERVICE LOG ══ -->
+<div id="page-service" class="page">
+  <div class="page-title">服務記錄</div>
+  <div class="page-sub">每次服務登錄，抽成自動計算</div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">新增服務</div></div>
+    <div class="form-grid" style="gap:10px;margin-bottom:10px">
+      <div class="fg"><label>日期</label><input type="date" id="s-date"></div>
+      <div class="fg"><label>老師</label>
+        <select id="s-teacher" onchange="updateClientTypeVisibility()">
+          <option value="珞熙">珞熙</option>
+          <option value="婉甄">婉甄</option>
+          <option value="璇璇">璇璇</option>
+        </select>
+      </div>
+      <div class="fg"><label>客人姓名</label><input type="text" id="s-client" placeholder="姓名（可選）" list="client-datalist"></div>
+      <div class="fg"><label>服務類型</label>
+        <select id="s-type">
+          <option value="做臉">做臉</option>
+          <option value="按摩">按摩</option>
+          <option value="除毛">除毛</option>
+          <option value="紋繡">紋繡</option>
+          <option value="產品">產品</option>
+        </select>
+      </div>
+      <div class="fg" id="ct-group"><label>客戶類型</label>
+        <select id="s-ctype">
+          <option value="店客">店客</option>
+          <option value="自帶客">自帶客</option>
+          <option value="轉介在場">轉介在場</option>
+          <option value="轉介不在場">轉介不在場</option>
+        </select>
+      </div>
+      <div class="fg"><label>服務費 (NT$)</label><input type="number" id="s-fee" placeholder="0" min="0"></div>
+      <div class="fg"><label>產品銷售 (NT$)</label><input type="number" id="s-prod" placeholder="0" min="0"></div>
+      <div class="fg"><label>付款方式</label>
+        <select id="s-pay">
+          <option value="現金">現金</option>
+          <option value="轉帳">轉帳</option>
+          <option value="儲值核銷">儲值核銷</option>
+          <option value="現金+儲值">現金+儲值</option>
+        </select>
+      </div>
+      <div class="fg"><label>儲值核銷金額</label><input type="number" id="s-prepay-use" placeholder="0" min="0"></div>
+      <div class="fg" style="align-self:flex-end">
+        <button class="btn btn-p btn-w" onclick="addService()">＋ 新增</button>
+      </div>
+    </div>
+    <div class="alert alert-i" style="margin-bottom:0;font-size:11px">
+      💡 抽成：珞熙70% ｜ 璇璇60% ｜ 婉甄：自帶客50%、店客40%、轉介在場20%、轉介不在場10%、產品15%
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">本月記錄 <span id="s-count" style="color:var(--text3);font-size:11px">0筆</span></div>
+      <button class="btn btn-g btn-sm" onclick="exportServiceCSV()">↓ CSV</button>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr>
+        <th>日期</th><th>老師</th><th>客人</th><th>類型</th><th>客戶類型</th>
+        <th>服務費</th><th>產品</th><th>付款</th><th>抽成%</th><th>抽成</th><th></th>
+      </tr></thead><tbody id="s-tbody"></tbody></table>
+      <div id="s-empty" class="empty"><div class="ei">✍️</div><p>尚無記錄，從上方新增</p></div>
+    </div>
+  </div>
+  <datalist id="client-datalist"></datalist>
+</div>
+
+<!-- ══ CLIENTS ══ -->
+<div id="page-clients" class="page">
+  <div class="page-title">客戶名單</div>
+  <div class="page-sub">消費記錄、儲值餘額、回訪追蹤</div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">新增客戶</div></div>
+    <div class="form-grid" style="gap:10px;margin-bottom:10px">
+      <div class="fg"><label>姓名</label><input type="text" id="c-name" placeholder="客人姓名"></div>
+      <div class="fg"><label>電話</label><input type="tel" id="c-phone" placeholder="0912-345-678"></div>
+      <div class="fg"><label>生日（月/日）</label><input type="text" id="c-birthday" placeholder="例：03/15"></div>
+      <div class="fg"><label>初次來訪日期</label><input type="date" id="c-first"></div>
+      <div class="fg"><label>備注</label><input type="text" id="c-note" placeholder="過敏、偏好等"></div>
+      <div class="fg" style="align-self:flex-end">
+        <button class="btn btn-p btn-w" onclick="addClient()">＋ 新增</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">客戶列表</div>
+      <input type="text" id="c-search" placeholder="搜尋姓名..." style="width:140px;padding:6px 10px;font-size:12px" oninput="renderClients()">
+    </div>
+    <div id="c-list"></div>
+    <div id="c-empty" class="empty"><div class="ei">👤</div><p>尚無客戶，從上方新增</p></div>
+  </div>
+  <div class="card" style="border-left:3px solid var(--amber)">
+    <div class="card-header"><div class="card-title">⏰ 回訪提醒（超過21天未來）</div></div>
+    <div id="c-followup"></div>
+  </div>
+</div>
+
+<!-- ══ PREPAY ══ -->
+<div id="page-prepay" class="page">
+  <div class="page-title">儲值管理</div>
+  <div class="page-sub">預繳餘額 = 欠客人的服務（負債）</div>
+  <div class="g3" style="margin-bottom:14px">
+    <div class="kpi"><div class="kpi-label">期初餘額</div><div class="kpi-val" id="pp-open">NT$0</div></div>
+    <div class="kpi a"><div class="kpi-label">本月新增</div><div class="kpi-val" id="pp-new">NT$0</div></div>
+    <div class="kpi"><div class="kpi-label">期末負債</div><div class="kpi-val" id="pp-close">NT$0</div><div id="pp-health"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">新增儲值</div></div>
+      <div class="fg" style="margin-bottom:10px"><label>日期</label><input type="date" id="pp-date"></div>
+      <div class="fg" style="margin-bottom:10px"><label>客人姓名</label><input type="text" id="pp-client" placeholder="姓名" list="client-datalist"></div>
+      <div class="fg" style="margin-bottom:10px"><label>儲值金額</label><input type="number" id="pp-amount" placeholder="0"></div>
+      <div class="fg" style="margin-bottom:10px"><label>備注</label><input type="text" id="pp-note" placeholder="例：儲5000送500"></div>
+      <button class="btn btn-p btn-w" onclick="addPrepay()">＋ 新增</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">月初設定</div></div>
+      <div class="fg" style="margin-bottom:12px">
+        <label>期初預繳餘額（上月結轉）</label>
+        <input type="number" id="pp-opening-input" placeholder="0" oninput="savePrepayOpening()">
+      </div>
+      <div class="alert alert-w">⚠️ 儲值負債目標：不超過月收入200%。超過請暫停推儲值方案。</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">本月儲值記錄</div></div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>日期</th><th>客人</th><th>金額</th><th>備注</th><th></th></tr></thead>
+      <tbody id="pp-tbody"></tbody></table>
+      <div id="pp-empty" class="empty"><div class="ei">💳</div><p>本月尚無儲值</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INVENTORY ══ -->
+<div id="page-inventory" class="page">
+  <div class="page-title">庫存進貨</div>
+  <div class="page-sub">記錄每次進貨，自動計入月度成本</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">保養品</div><div class="kpi-val" id="iv-sc">NT$0</div></div>
+    <div class="kpi"><div class="kpi-label">除毛耗材</div><div class="kpi-val" id="iv-wx">NT$0</div></div>
+    <div class="kpi"><div class="kpi-label">紋繡材料</div><div class="kpi-val" id="iv-pm">NT$0</div></div>
+    <div class="kpi g"><div class="kpi-label">本月合計</div><div class="kpi-val" id="iv-tot">NT$0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">新增進貨</div></div>
+    <div class="form-grid" style="gap:10px;margin-bottom:10px">
+      <div class="fg"><label>日期</label><input type="date" id="iv-date"></div>
+      <div class="fg"><label>分類</label>
+        <select id="iv-cat">
+          <option value="保養品">保養品</option>
+          <option value="除毛耗材">除毛耗材</option>
+          <option value="紋繡材料">紋繡材料</option>
+          <option value="包裝材料">包裝材料</option>
+          <option value="一次性耗材">一次性耗材</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="fg"><label>品項說明</label><input type="text" id="iv-item" placeholder="例：玻尿酸精華 ×3"></div>
+      <div class="fg"><label>金額 (NT$)</label><input type="number" id="iv-amt" placeholder="0"></div>
+      <div class="fg" style="align-self:flex-end"><button class="btn btn-p btn-w" onclick="addInventory()">＋ 新增</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">本月進貨記錄</div></div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>日期</th><th>分類</th><th>品項</th><th>金額</th><th></th></tr></thead>
+      <tbody id="iv-tbody"></tbody></table>
+      <div id="iv-empty" class="empty"><div class="ei">📦</div><p>本月尚無進貨</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TEACHERS ══ -->
+<div id="page-teachers" class="page">
+  <div class="page-title">老師抽成結算</div>
+  <div class="page-sub">本月各老師服務收入與抽成明細</div>
+  <div class="g3" id="t-cards" style="margin-bottom:14px"></div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">婉甄五段式抽成明細</div></div>
+    <div id="t-wz"></div>
+  </div>
+</div>
+
+<!-- ══ EMPLOYEE PURCHASE ══ -->
+<div id="page-ep" class="page">
+  <div class="page-title">婉甄員購</div>
+  <div class="page-sub">員購優惠：進貨成本 × 1.1 ｜ 不計抽成</div>
+  <div class="g3" style="margin-bottom:14px">
+    <div class="kpi"><div class="kpi-label">婉甄實付（員購收入）</div><div class="kpi-val" id="ep-rev">NT$0</div></div>
+    <div class="kpi"><div class="kpi-label">進貨成本</div><div class="kpi-val" id="ep-cost">NT$0</div></div>
+    <div class="kpi a"><div class="kpi-label">工作室讓利</div><div class="kpi-val" id="ep-disc">NT$0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">新增員購記錄</div></div>
+    <div class="form-grid" style="gap:10px;margin-bottom:10px">
+      <div class="fg"><label>日期</label><input type="date" id="ep-date"></div>
+      <div class="fg"><label>品項</label><input type="text" id="ep-item" placeholder="品名"></div>
+      <div class="fg"><label>定價 (NT$)</label><input type="number" id="ep-list" placeholder="0" oninput="calcEP()"></div>
+      <div class="fg"><label>進貨成本 (NT$)</label><input type="number" id="ep-cin" placeholder="0" oninput="calcEP()"></div>
+      <div class="fg"><label>婉甄付款（成本×1.1）</label><input type="number" id="ep-pay" readonly placeholder="自動計算"></div>
+      <div class="fg" style="align-self:flex-end"><button class="btn btn-p btn-w" onclick="addEP()">＋ 新增</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">本月員購記錄</div></div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>日期</th><th>品項</th><th>定價</th><th>成本</th><th>婉甄付</th><th>讓利</th><th></th></tr></thead>
+      <tbody id="ep-tbody"></tbody></table>
+      <div id="ep-empty" class="empty"><div class="ei">🛍️</div><p>本月尚無員購</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FINANCE ══ -->
+<div id="page-finance" class="page">
+  <div class="page-title">月度財務報表</div>
+  <div class="page-sub">401格式損益表</div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">費用輸入</div></div>
+    <div class="g2">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:10px">固定費用</div>
+        <div class="fg" style="margin-bottom:10px">
+          <label>全月租金 <span style="color:var(--text3);font-weight:300">（系統自動×空間比例）</span></label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="number" id="f-rent" placeholder="全月租金" oninput="calcFinance()" style="flex:1">
+            <input type="number" id="f-space" value="50" style="width:60px" oninput="calcFinance()">
+            <span style="font-size:11px;color:var(--text3)">%</span>
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:8px"><label>水電瓦斯（全月）</label><input type="number" id="f-util" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>APP / 系統訂閱</label><input type="number" id="f-app" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>停車費</label><input type="number" id="f-park" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>職業工會勞健保</label><input type="number" id="f-ins" placeholder="800" oninput="calcFinance()"></div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:10px">變動費用</div>
+        <div class="fg" style="margin-bottom:8px"><label>器材設備購置</label><input type="number" id="f-equip" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>修繕費</label><input type="number" id="f-repair" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>行銷廣告費</label><input type="number" id="f-mkt" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>紅包 / 請客 / 節慶</label><input type="number" id="f-gift" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>進修學習費</label><input type="number" id="f-edu" placeholder="0" oninput="calcFinance()"></div>
+        <div class="fg" style="margin-bottom:8px"><label>其他費用</label><input type="number" id="f-other" placeholder="0" oninput="calcFinance()"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><div class="card-header"><div class="card-title">損益表 P&L</div><button class="btn btn-g btn-sm" onclick="exportMonthCSV()">↓ 匯出CSV</button></div><div id="f-pl"></div></div>
+</div>
+
+<!-- ══ ANNUAL ══ -->
+<div id="page-annual" class="page">
+  <div class="page-title">年度趨勢</div>
+  <div class="page-sub" id="annual-year">2025年度</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">月收入走勢</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-g btn-sm" onclick="changeAnnualYear(-1)">◀</button>
+        <button class="btn btn-g btn-sm" onclick="changeAnnualYear(1)">▶</button>
+      </div>
+    </div>
+    <div id="annual-rev-chart" class="trend-wrap"></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">月淨利走勢</div></div>
+      <div id="annual-np-chart" class="trend-wrap"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">年度KPI</div></div>
+      <div id="annual-kpi"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOSS PAY ══ -->
+<div id="page-boss" class="page">
+  <div class="page-title">老闆薪資</div>
+  <div class="page-sub">珞熙這個月該領多少、還有多少能花</div>
+  <div class="g3" style="margin-bottom:14px">
+    <div class="kpi"><div class="kpi-label">本月淨利</div><div class="kpi-val" id="bp-np">NT$0</div></div>
+    <div class="kpi a"><div class="kpi-label">備用金（10%）</div><div class="kpi-val" id="bp-res">NT$0</div><div class="kpi-sub">轉備用帳戶</div></div>
+    <div class="kpi g"><div class="kpi-label">💵 老闆可領</div><div class="kpi-val" id="bp-sal">NT$0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">備用金分配建議</div></div>
+    <div class="g3">
+      <div style="text-align:center;padding:16px 8px">
+        <div style="font-size:28px;margin-bottom:6px">📦</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:4px">叫貨預算 50%</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--rose-lt)" id="bp-goods">NT$0</div>
+      </div>
+      <div style="text-align:center;padding:16px 8px">
+        <div style="font-size:28px;margin-bottom:6px">🔧</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:4px">設備 30%</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--rose-lt)" id="bp-equip">NT$0</div>
+      </div>
+      <div style="text-align:center;padding:16px 8px">
+        <div style="font-size:28px;margin-bottom:6px">📚</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:4px">進修行銷 20%</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--rose-lt)" id="bp-edu">NT$0</div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><div class="card-header"><div class="card-title">成長里程碑</div></div><div id="bp-miles"></div></div>
+</div>
+
+<!-- ══ CALENDAR ══ -->
+<div id="page-calendar" class="page">
+  <div class="page-title">行事曆</div>
+  <div class="page-sub">排班、預約、重要事項</div>
+  <div class="card">
+    <div class="cal-nav">
+      <button class="btn btn-g btn-sm" onclick="calNav(-1)">◀</button>
+      <div class="cal-nav-title" id="cal-title"></div>
+      <button class="btn btn-g btn-sm" onclick="calNav(1)">▶</button>
+    </div>
+    <div class="cal-grid" id="cal-headers"></div>
+    <div style="height:6px"></div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">新增事件</div></div>
+    <div class="form-grid" style="gap:10px;margin-bottom:10px">
+      <div class="fg"><label>日期</label><input type="date" id="cal-date"></div>
+      <div class="fg"><label>老師</label>
+        <select id="cal-teacher">
+          <option value="全體">全體</option>
+          <option value="珞熙">珞熙</option>
+          <option value="婉甄">婉甄</option>
+          <option value="璇璇">璇璇</option>
+        </select>
+      </div>
+      <div class="fg"><label>事件</label><input type="text" id="cal-event" placeholder="例：婉甄休假"></div>
+      <div class="fg" style="align-self:flex-end"><button class="btn btn-p btn-w" onclick="addCalEvent()">＋ 新增</button></div>
+    </div>
+    <div id="cal-list"></div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div id="page-settings" class="page">
+  <div class="page-title">設定 & 備份</div>
+  <div class="page-sub">系統設定、資料匯出、Vercel部署說明</div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">基本設定</div></div>
+      <div class="fg" style="margin-bottom:14px">
+        <label>空間分攤比例</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="range" id="set-space" min="10" max="100" value="50" oninput="document.getElementById('set-space-v').textContent=this.value+'%';document.getElementById('f-space').value=this.value;calcFinance()" style="flex:1;accent-color:var(--rose)">
+          <span id="set-space-v" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--rose-lt);min-width:36px">50%</span>
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:14px">
+        <label>備用金提撥比例</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="range" id="set-res" min="5" max="30" value="10" oninput="document.getElementById('set-res-v').textContent=this.value+'%'" style="flex:1;accent-color:var(--rose)">
+          <span id="set-res-v" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--rose-lt);min-width:36px">10%</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label>回訪提醒天數</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="range" id="set-remind" min="7" max="60" value="21" oninput="document.getElementById('set-remind-v').textContent=this.value+'天';renderFollowUp()" style="flex:1;accent-color:var(--rose)">
+          <span id="set-remind-v" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--rose-lt);min-width:40px">21天</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">資料管理</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-g btn-w" onclick="exportMonthCSV()">↓ 匯出本月 CSV</button>
+        <button class="btn btn-g btn-w" onclick="exportFullBackup()">🗄 下載完整備份 JSON</button>
+        <label class="btn btn-g btn-w" style="cursor:pointer">↑ 還原備份 JSON<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
+        <div class="div"></div>
+        <button class="btn btn-d btn-w" onclick="clearMonth()">⚠️ 清除本月資料</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📋 Vercel 部署說明（5分鐘完成）</div></div>
+    <div style="font-size:13px;line-height:1.9;color:var(--text2)">
+      <div style="background:var(--surface2);border-radius:8px;padding:16px;font-family:'DM Mono',monospace;font-size:12px;line-height:2;margin-bottom:12px">
+        1. <a href="https://github.com" target="_blank" style="color:var(--sky)">github.com</a> 免費註冊<br>
+        2. 新建 Repository → 取名 <strong style="color:var(--rose-lt)">mumi-erp</strong><br>
+        3. 把此檔案改名為 <strong style="color:var(--rose-lt)">index.html</strong> → 上傳進去<br>
+        4. <a href="https://vercel.com" target="_blank" style="color:var(--sky)">vercel.com</a> 用 GitHub 帳號登入<br>
+        5. Import Project → 選 mumi-erp → Deploy<br>
+        6. 得到你的專屬網址 → 書籤保存
+      </div>
+      <div class="alert alert-g" style="margin-bottom:10px">✅ 完全免費 ｜ 自動HTTPS ｜ 手機電腦都能用</div>
+      <div class="alert alert-w">⚠️ 資料存在瀏覽器，換裝置前先「下載完整備份JSON」，新裝置還原即可。</div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- CLIENT DETAIL MODAL -->
+<div id="client-modal" class="modal-bg">
+  <div class="modal">
+    <div class="modal-title" id="cm-name">客戶詳情</div>
+    <div id="cm-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-d btn-sm" id="cm-delete-btn">刪除</button>
+      <button class="btn btn-g" onclick="closeModal('client-modal')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✓ 已儲存</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// STATE & STORAGE
+// ════════════════════════════════════════════════════════════
+const today=()=>new Date().toISOString().split('T')[0];
+const fmt=v=>'NT$'+Math.round(v).toLocaleString();
+const pct=v=>(v*100).toFixed(1)+'%';
+
+let currentMonth=localStorage.getItem('mumi_month')||
+  (new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'));
+let annualYear=parseInt(currentMonth.split('-')[0]);
+
+const SK=t=>`mumi_${currentMonth}_${t}`;
+const GK=k=>localStorage.getItem(k);
+const SK_G=k=>localStorage.getItem(SK(k));
+const SK_S=(k,v)=>localStorage.setItem(SK(k),typeof v==='string'?v:JSON.stringify(v));
+
+let S={services:[],prepays:[],inventory:[],ep:[],clients:[],calEvents:[],expenses:{},prepayOpening:0};
+
+function loadMonth(){
+  S.services=JSON.parse(SK_G('svc')||'[]');
+  S.prepays=JSON.parse(SK_G('pp')||'[]');
+  S.inventory=JSON.parse(SK_G('inv')||'[]');
+  S.ep=JSON.parse(SK_G('ep')||'[]');
+  S.clients=JSON.parse(GK('mumi_clients')||'[]');
+  S.calEvents=JSON.parse(SK_G('cal')||'[]');
+  S.prepayOpening=parseFloat(SK_G('ppOpen')||'0');
+  const expF=JSON.parse(SK_G('expF')||'{}');
+  Object.entries(expF).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v;});
+  const po=document.getElementById('pp-opening-input');
+  if(po)po.value=S.prepayOpening||'';
+}
+
+function saveAll(){
+  SK_S('svc',S.services);SK_S('pp',S.prepays);SK_S('inv',S.inventory);
+  SK_S('ep',S.ep);SK_S('cal',S.calEvents);
+  localStorage.setItem('mumi_clients',JSON.stringify(S.clients));
+  SK_S('ppOpen',S.prepayOpening);
+  localStorage.setItem('mumi_month',currentMonth);
+  const fids=['f-rent','f-space','f-util','f-app','f-park','f-ins','f-equip','f-repair','f-mkt','f-gift','f-edu','f-other'];
+  const expF={};fids.forEach(id=>{const el=document.getElementById(id);if(el)expF[id]=el.value;});
+  SK_S('expF',expF);
+}
+
+function toast(){
+  const t=document.getElementById('toast');t.style.display='block';
+  setTimeout(()=>t.style.display='none',1600);
+}
+
+// ════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════
+let currentPage='dashboard';
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item,.bnav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll(`[data-page="${id}"]`).forEach(n=>n.classList.add('active'));
+  currentPage=id;
+  document.getElementById('month-picker').style.display='none';
+  refreshAll();
+  // scroll to top
+  window.scrollTo(0,0);
+}
+
+// ════════════════════════════════════════════════════════════
+// MONTH PICKER
+// ════════════════════════════════════════════════════════════
+function buildMonthList(){
+  const list=document.getElementById('month-list');
+  const years=[2025,2026,2027];
+  list.innerHTML=years.map(y=>
+    Array.from({length:12},(_,i)=>{
+      const m=String(i+1).padStart(2,'0');
+      const val=`${y}-${m}`;
+      const active=val===currentMonth?'style="color:var(--rose-lt);font-weight:500"':'';
+      return `<div onclick="switchMonth('${val}')" ${active}
+        style="padding:7px 12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);border-radius:6px"
+        onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''"
+      >${y}年${i+1}月</div>`;
+    }).join('')
+  ).join('');
+}
+function toggleMonthPicker(){
+  const p=document.getElementById('month-picker');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',e=>{
+  const p=document.getElementById('month-picker');
+  if(!p.contains(e.target)&&!document.getElementById('month-display').contains(e.target))
+    p.style.display='none';
+});
+
+function switchMonth(m){
+  currentMonth=m;localStorage.setItem('mumi_month',m);
+  loadMonth();renderAll();refreshAll();
+  document.getElementById('month-picker').style.display='none';
+  updateMonthDisplay();
+}
+function updateMonthDisplay(){
+  const[y,m]=currentMonth.split('-');
+  document.getElementById('month-display').textContent=`${y}年${parseInt(m)}月`;
+}
+
+// ════════════════════════════════════════════════════════════
+// COMMISSION CALC
+// ════════════════════════════════════════════════════════════
+function commPct(teacher,ctype){
+  if(teacher==='珞熙')return 0.7;
+  if(teacher==='璇璇')return 0.6;
+  if(teacher==='婉甄'){
+    const m={'自帶客':0.5,'店客':0.4,'轉介在場':0.2,'轉介不在場':0.1};
+    return m[ctype]||0.4;
+  }
+  return 0;
+}
+function commAmt(s){
+  const sp=commPct(s.teacher,s.ctype);
+  const pp=s.teacher==='婉甄'?0.15:commPct(s.teacher,s.ctype);
+  return s.fee*sp+s.prod*pp;
+}
+function updateClientTypeVisibility(){
+  const t=document.getElementById('s-teacher').value;
+  document.getElementById('ct-group').style.opacity=t==='婉甄'?'1':'0.4';
+}
+
+// ════════════════════════════════════════════════════════════
+// SERVICE
+// ════════════════════════════════════════════════════════════
+function addService(){
+  const date=document.getElementById('s-date').value||today();
+  const teacher=document.getElementById('s-teacher').value;
+  const client=document.getElementById('s-client').value.trim();
+  const type=document.getElementById('s-type').value;
+  const ctype=document.getElementById('s-ctype').value;
+  const fee=parseFloat(document.getElementById('s-fee').value)||0;
+  const prod=parseFloat(document.getElementById('s-prod').value)||0;
+  const pay=document.getElementById('s-pay').value;
+  const prepayUse=parseFloat(document.getElementById('s-prepay-use').value)||0;
+  const ca=commAmt({teacher,ctype,fee,prod});
+  const cp=commPct(teacher,ctype);
+  S.services.push({date,teacher,client,type,ctype,fee,prod,pay,prepayUse,commPct:cp,commAmt:ca});
+  // update client last visit
+  if(client){
+    let c=S.clients.find(x=>x.name===client);
+    if(c){c.lastVisit=date;c.totalSpend=(c.totalSpend||0)+fee+prod;}
+  }
+  document.getElementById('s-fee').value='';
+  document.getElementById('s-prod').value='';
+  document.getElementById('s-prepay-use').value='';
+  saveAll();renderServices();updateClientDatalist();refreshAll();toast();
+}
+function deleteService(i){S.services.splice(i,1);saveAll();renderServices();refreshAll();}
+
+function renderServices(){
+  const tb=document.getElementById('s-tbody');
+  const em=document.getElementById('s-empty');
+  document.getElementById('s-count').textContent=S.services.length+'筆';
+  if(!S.services.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=S.services.slice().reverse().map((s,ri)=>{
+    const i=S.services.length-1-ri;
+    const tc=s.teacher==='珞熙'?'tt-l':s.teacher==='婉甄'?'tt-w':'tt-x';
+    return`<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap">${s.date}</td>
+      <td><span class="tt ${tc}">${s.teacher}</span></td>
+      <td style="font-size:12px">${s.client||'—'}</td>
+      <td><span class="badge bb">${s.type}</span></td>
+      <td><span class="ct ct-${s.ctype}">${s.ctype}</span></td>
+      <td class="num">${s.fee?fmt(s.fee):'—'}</td>
+      <td class="num">${s.prod?fmt(s.prod):'—'}</td>
+      <td style="font-size:11px;color:var(--text3)">${s.pay}</td>
+      <td class="num" style="color:var(--rose)">${pct(s.commPct)}</td>
+      <td class="num">${fmt(s.commAmt)}</td>
+      <td><button class="btn btn-d btn-sm" onclick="deleteService(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function exportServiceCSV(){
+  const rows=[['日期','老師','客人','類型','客戶類型','服務費','產品','付款','抽成%','抽成金額'],
+    ...S.services.map(s=>[s.date,s.teacher,s.client,s.type,s.ctype,s.fee,s.prod,s.pay,
+      Math.round(s.commPct*100)+'%',Math.round(s.commAmt)])];
+  dl(rows.map(r=>r.join(',')).join('\n'),`沐蜜${currentMonth}服務記錄.csv`,'text/csv');
+}
+
+// ════════════════════════════════════════════════════════════
+// CLIENTS
+// ════════════════════════════════════════════════════════════
+function addClient(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name)return;
+  if(S.clients.find(c=>c.name===name)){alert('此客人已存在');return;}
+  S.clients.push({
+    name,phone:document.getElementById('c-phone').value,
+    birthday:document.getElementById('c-birthday').value,
+    firstVisit:document.getElementById('c-first').value||today(),
+    note:document.getElementById('c-note').value,
+    lastVisit:document.getElementById('c-first').value||today(),
+    totalSpend:0,
+  });
+  document.getElementById('c-name').value='';document.getElementById('c-phone').value='';
+  document.getElementById('c-birthday').value='';document.getElementById('c-note').value='';
+  saveAll();renderClients();updateClientDatalist();toast();
+}
+
+function renderClients(){
+  const q=(document.getElementById('c-search').value||'').toLowerCase();
+  const list=document.getElementById('c-list');
+  const em=document.getElementById('c-empty');
+  const filtered=S.clients.filter(c=>!q||c.name.toLowerCase().includes(q));
+  if(!filtered.length){list.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  // calc spend from services
+  const spendMap={};
+  S.services.forEach(s=>{if(s.client)spendMap[s.client]=(spendMap[s.client]||0)+s.fee+s.prod;});
+  list.innerHTML=filtered.map((c,i)=>{
+    const spend=spendMap[c.name]||0;
+    const daysSince=c.lastVisit?Math.floor((Date.now()-new Date(c.lastVisit))/(1000*86400)):999;
+    const remind=parseInt(document.getElementById('set-remind')?.value||21);
+    const needsVisit=daysSince>remind;
+    return`<div class="client-card" onclick="openClientModal('${c.name}')">
+      <div>
+        <div class="client-name">${c.name}</div>
+        <div class="client-meta">${c.phone||'無電話'} ｜ 生日：${c.birthday||'未填'}</div>
+        <div class="client-meta" style="margin-top:2px">${needsVisit?`<span style="color:var(--amber)">⏰ ${daysSince}天未訪</span>`:`${daysSince}天前到訪`}</div>
+      </div>
+      <div class="client-stats">
+        <div class="client-total">${fmt(spend)}</div>
+        <div class="client-badge"><span class="badge ${needsVisit?'ba':'bg'}">${needsVisit?'需追蹤':'正常'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  renderFollowUp();
+}
+
+function renderFollowUp(){
+  const el=document.getElementById('c-followup');
+  if(!el)return;
+  const days=parseInt(document.getElementById('set-remind')?.value||21);
+  const overdue=S.clients.filter(c=>{
+    if(!c.lastVisit)return true;
+    return Math.floor((Date.now()-new Date(c.lastVisit))/(1000*86400))>days;
+  });
+  if(!overdue.length){el.innerHTML='<div class="empty" style="padding:20px"><p style="color:var(--sage)">✅ 所有客人都在追蹤期內</p></div>';return;}
+  el.innerHTML=overdue.map(c=>{
+    const d=Math.floor((Date.now()-new Date(c.lastVisit||today()))/(1000*86400));
+    return`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-weight:500">${c.name}</div><div style="font-size:11px;color:var(--text3)">${c.phone||'無電話'}</div></div>
+      <span class="badge ba">已${d}天</span>
+    </div>`;
+  }).join('');
+}
+
+function openClientModal(name){
+  const c=S.clients.find(x=>x.name===name);
+  if(!c)return;
+  const svcs=S.services.filter(s=>s.client===name);
+  const totalSpend=svcs.reduce((a,s)=>a+s.fee+s.prod,0);
+  const prepayBal=S.prepays.filter(p=>p.client===name).reduce((a,p)=>a+p.amount,0)
+    -S.services.filter(s=>s.client===name&&s.pay==='儲值核銷').reduce((a,s)=>a+s.prepayUse,0);
+  document.getElementById('cm-name').textContent=c.name;
+  document.getElementById('cm-body').innerHTML=`
+    <div class="g2" style="margin-bottom:12px">
+      <div><div class="stat-row"><span class="stat-label">電話</span><span class="stat-val">${c.phone||'—'}</span></div>
+        <div class="stat-row"><span class="stat-label">生日</span><span class="stat-val">${c.birthday||'—'}</span></div>
+        <div class="stat-row"><span class="stat-label">初次來訪</span><span class="stat-val">${c.firstVisit||'—'}</span></div>
+        <div class="stat-row"><span class="stat-label">備注</span><span class="stat-val">${c.note||'—'}</span></div>
+      </div>
+      <div><div class="stat-row"><span class="stat-label">本月消費</span><span class="stat-val" style="color:var(--rose-lt)">${fmt(totalSpend)}</span></div>
+        <div class="stat-row"><span class="stat-label">儲值餘額</span><span class="stat-val" style="color:var(--gold)">${fmt(prepayBal)}</span></div>
+        <div class="stat-row"><span class="stat-label">本月來訪</span><span class="stat-val">${svcs.length}次</span></div>
+      </div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:6px">本月服務記錄</div>
+    ${svcs.length?svcs.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <span>${s.date} ${s.type}</span><span style="font-family:'DM Mono',monospace">${fmt(s.fee)}</span>
+    </div>`).join(''):'<div style="color:var(--text3);font-size:12px;padding:8px 0">本月尚無記錄</div>'}
+  `;
+  const idx=S.clients.indexOf(c);
+  document.getElementById('cm-delete-btn').onclick=()=>{
+    if(confirm(`確定刪除客戶「${name}」？`)){S.clients.splice(idx,1);saveAll();renderClients();closeModal('client-modal');}
+  };
+  document.getElementById('client-modal').classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function updateClientDatalist(){
+  const dl=document.getElementById('client-datalist');
+  if(dl)dl.innerHTML=S.clients.map(c=>`<option value="${c.name}">`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// PREPAY
+// ════════════════════════════════════════════════════════════
+function addPrepay(){
+  const amount=parseFloat(document.getElementById('pp-amount').value)||0;
+  if(!amount)return;
+  S.prepays.push({
+    date:document.getElementById('pp-date').value||today(),
+    client:document.getElementById('pp-client').value,
+    amount,note:document.getElementById('pp-note').value
+  });
+  document.getElementById('pp-amount').value='';document.getElementById('pp-note').value='';
+  saveAll();renderPrepay();refreshAll();toast();
+}
+function savePrepayOpening(){
+  S.prepayOpening=parseFloat(document.getElementById('pp-opening-input').value)||0;
+  saveAll();refreshAll();
+}
+function deletePrepay(i){S.prepays.splice(i,1);saveAll();renderPrepay();refreshAll();}
+function renderPrepay(){
+  const tb=document.getElementById('pp-tbody'),em=document.getElementById('pp-empty');
+  if(!S.prepays.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=S.prepays.slice().reverse().map((p,ri)=>{
+    const i=S.prepays.length-1-ri;
+    return`<tr><td style="font-family:'DM Mono',monospace;font-size:11px">${p.date}</td>
+      <td>${p.client||'—'}</td><td class="num">${fmt(p.amount)}</td>
+      <td style="font-size:11px;color:var(--text3)">${p.note||'—'}</td>
+      <td><button class="btn btn-d btn-sm" onclick="deletePrepay(${i})">✕</button></td></tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// INVENTORY
+// ════════════════════════════════════════════════════════════
+function addInventory(){
+  const amount=parseFloat(document.getElementById('iv-amt').value)||0;
+  if(!amount)return;
+  S.inventory.push({
+    date:document.getElementById('iv-date').value||today(),
+    cat:document.getElementById('iv-cat').value,
+    item:document.getElementById('iv-item').value,amount
+  });
+  document.getElementById('iv-item').value='';document.getElementById('iv-amt').value='';
+  saveAll();renderInventory();refreshAll();toast();
+}
+function deleteInventory(i){S.inventory.splice(i,1);saveAll();renderInventory();refreshAll();}
+function renderInventory(){
+  const tb=document.getElementById('iv-tbody'),em=document.getElementById('iv-empty');
+  if(!S.inventory.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  const cc={'保養品':'rose-lt','除毛耗材':'sky','紋繡材料':'sage','包裝材料':'gold','一次性耗材':'text3','其他':'text3'};
+  tb.innerHTML=S.inventory.slice().reverse().map((iv,ri)=>{
+    const i=S.inventory.length-1-ri;
+    return`<tr><td style="font-family:'DM Mono',monospace;font-size:11px">${iv.date}</td>
+      <td style="color:var(--${cc[iv.cat]||'text2'});font-weight:500">${iv.cat}</td>
+      <td>${iv.item}</td><td class="num">${fmt(iv.amount)}</td>
+      <td><button class="btn btn-d btn-sm" onclick="deleteInventory(${i})">✕</button></td></tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// EMPLOYEE PURCHASE
+// ════════════════════════════════════════════════════════════
+function calcEP(){
+  const cost=parseFloat(document.getElementById('ep-cin').value)||0;
+  document.getElementById('ep-pay').value=cost?Math.round(cost*1.1):'';
+}
+function addEP(){
+  const cost=parseFloat(document.getElementById('ep-cin').value)||0;
+  if(!cost)return;
+  S.ep.push({
+    date:document.getElementById('ep-date').value||today(),
+    item:document.getElementById('ep-item').value,
+    list:parseFloat(document.getElementById('ep-list').value)||0,
+    cost,pay:Math.round(cost*1.1)
+  });
+  document.getElementById('ep-item').value='';document.getElementById('ep-list').value='';
+  document.getElementById('ep-cin').value='';document.getElementById('ep-pay').value='';
+  saveAll();renderEP();refreshAll();toast();
+}
+function deleteEP(i){S.ep.splice(i,1);saveAll();renderEP();refreshAll();}
+function renderEP(){
+  const tb=document.getElementById('ep-tbody'),em=document.getElementById('ep-empty');
+  if(!S.ep.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=S.ep.slice().reverse().map((ep,ri)=>{
+    const i=S.ep.length-1-ri;
+    return`<tr><td style="font-family:'DM Mono',monospace;font-size:11px">${ep.date}</td>
+      <td>${ep.item}</td><td class="num">${ep.list?fmt(ep.list):'—'}</td>
+      <td class="num">${fmt(ep.cost)}</td>
+      <td class="num" style="color:var(--sage)">${fmt(ep.pay)}</td>
+      <td class="num" style="color:var(--gold)">${ep.list?fmt(ep.list-ep.pay):'—'}</td>
+      <td><button class="btn btn-d btn-sm" onclick="deleteEP(${i})">✕</button></td></tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// FINANCE
+// ════════════════════════════════════════════════════════════
+function calcFinance(){
+  const g=id=>{const el=document.getElementById(id);return el?parseFloat(el.value)||0:0;};
+  const sp=g('f-space')/100;
+  S.expenses={rent:g('f-rent')*sp,util:g('f-util')*sp,app:g('f-app'),
+    park:g('f-park'),ins:g('f-ins'),equip:g('f-equip'),repair:g('f-repair'),
+    mkt:g('f-mkt'),gift:g('f-gift'),edu:g('f-edu'),other:g('f-other')};
+  saveAll();refreshAll();
+}
+
+// ════════════════════════════════════════════════════════════
+// CALENDAR
+// ════════════════════════════════════════════════════════════
+let calDate=new Date();
+function calNav(d){calDate.setMonth(calDate.getMonth()+d);renderCalendar();}
+function addCalEvent(){
+  const date=document.getElementById('cal-date').value;
+  const ev=document.getElementById('cal-event').value.trim();
+  const teacher=document.getElementById('cal-teacher').value;
+  if(!date||!ev)return;
+  S.calEvents.push({date,teacher,event:ev});
+  document.getElementById('cal-event').value='';
+  saveAll();renderCalendar();toast();
+}
+function deleteCalEvent(i){S.calEvents.splice(i,1);saveAll();renderCalendar();}
+
+function renderCalendar(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('cal-title').textContent=`${y}年${m+1}月`;
+  const headers=['日','一','二','三','四','五','六'];
+  document.getElementById('cal-headers').innerHTML=headers.map(h=>`<div class="cal-header">${h}</div>`).join('');
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const todayStr=today();
+  let cells=[];
+  for(let i=0;i<first;i++)cells.push(`<div class="cal-day other-month"></div>`);
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evs=S.calEvents.filter(e=>e.date===ds);
+    const isToday=ds===todayStr;
+    const hasSvc=S.services.some(s=>s.date===ds);
+    cells.push(`<div class="cal-day${isToday?' today':''}${evs.length?' has-event':''}">
+      <div class="cal-day-num" style="color:${isToday?'var(--rose-lt)':'var(--text3)'}">${d}</div>
+      ${hasSvc?`<div class="cal-event">✓服務</div>`:''}
+      ${evs.map(e=>`<div class="cal-event" style="background:var(--${e.teacher==='珞熙'?'gold':e.teacher==='婉甄'?'sky':e.teacher==='璇璇'?'sage':'rose'}-dim)">${e.teacher==='全體'?'📌':e.teacher[0]}${e.event}</div>`).join('')}
+    </div>`);
+  }
+  document.getElementById('cal-grid').innerHTML=cells.join('');
+  // event list
+  const mo=`${y}-${String(m+1).padStart(2,'0')}`;
+  const moEvs=S.calEvents.filter(e=>e.date.startsWith(mo)).sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('cal-list').innerHTML=moEvs.length
+    ?moEvs.map((e,i)=>`<div class="stat-row">
+        <div><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${e.date} </span>
+        <span class="tt ${e.teacher==='珞熙'?'tt-l':e.teacher==='婉甄'?'tt-w':'tt-x'}">${e.teacher}</span>
+        <span style="margin-left:8px;font-size:13px">${e.event}</span></div>
+        <button class="btn btn-d btn-sm" onclick="deleteCalEvent(${S.calEvents.indexOf(e)})">✕</button>
+      </div>`).join('')
+    :'<div class="empty" style="padding:16px"><p>本月尚無事件</p></div>';
+}
+
+// ════════════════════════════════════════════════════════════
+// ANNUAL TREND
+// ════════════════════════════════════════════════════════════
+function changeAnnualYear(d){annualYear+=d;renderAnnual();}
+function getMonthData(ym){
+  const svcs=JSON.parse(localStorage.getItem(`mumi_${ym}_svc`)||'[]');
+  const inv=JSON.parse(localStorage.getItem(`mumi_${ym}_inv`)||'[]');
+  const expF=JSON.parse(localStorage.getItem(`mumi_${ym}_expF`)||'{}');
+  const sp=parseFloat(expF['f-space']||50)/100;
+  const rev=svcs.reduce((a,s)=>a+s.fee+s.prod,0)
+    +parseFloat(localStorage.getItem(`mumi_${ym}_ppOpen`)||0)*0;// prepay use
+  const addlRev=svcs.reduce((a,s)=>a+s.prepayUse,0);
+  const epRev=JSON.parse(localStorage.getItem(`mumi_${ym}_ep`)||'[]').reduce((a,e)=>a+e.pay,0);
+  const totalRev=svcs.reduce((a,s)=>a+s.fee+s.prod,0)+addlRev+epRev;
+  const totalComm=svcs.reduce((a,s)=>a+(s.commAmt||0),0);
+  const totalCogs=inv.reduce((a,i)=>a+i.amount,0);
+  const gp=totalRev-totalComm-totalCogs;
+  const expTotal=(parseFloat(expF['f-rent']||0)*sp)+(parseFloat(expF['f-util']||0)*sp)
+    +['f-app','f-park','f-ins','f-equip','f-repair','f-mkt','f-gift','f-edu','f-other']
+    .reduce((a,k)=>a+(parseFloat(expF[k]||0)),0);
+  const np=gp-expTotal;
+  return{rev:totalRev,np};
+}
+function renderAnnual(){
+  document.getElementById('annual-year').textContent=`${annualYear}年度`;
+  const months=Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0'));
+  const data=months.map(m=>getMonthData(`${annualYear}-${m}`));
+  const maxRev=Math.max(...data.map(d=>d.rev),1);
+  const maxNp=Math.max(...data.map(d=>Math.abs(d.np)),1);
+  const curMon=parseInt(currentMonth.split('-')[1])-1;
+  const curYear=parseInt(currentMonth.split('-')[0]);
+  document.getElementById('annual-rev-chart').innerHTML=data.map((d,i)=>`
+    <div class="trend-bar-col">
+      <div class="trend-bar${i===curMon&&annualYear===curYear?' active':''}" style="height:${Math.max(2,d.rev/maxRev*90)}px"></div>
+      <div class="trend-month">${i+1}月</div>
+    </div>`).join('');
+  document.getElementById('annual-np-chart').innerHTML=data.map((d,i)=>`
+    <div class="trend-bar-col">
+      <div class="trend-bar" style="height:${Math.max(2,Math.abs(d.np)/maxNp*90)}px;background:${d.np>=0?'var(--sage)':'var(--red)'}"></div>
+      <div class="trend-month">${i+1}月</div>
+    </div>`).join('');
+  const yr=data.reduce((a,d)=>({rev:a.rev+d.rev,np:a.np+d.np}),{rev:0,np:0});
+  document.getElementById('annual-kpi').innerHTML=`
+    <div class="stat-row"><span class="stat-label">年度總收入</span><span class="stat-val">${fmt(yr.rev)}</span></div>
+    <div class="stat-row"><span class="stat-label">年度總淨利</span><span class="stat-val" style="color:${yr.np>=0?'var(--sage)':'var(--red)'}">${fmt(yr.np)}</span></div>
+    <div class="stat-row"><span class="stat-label">月均收入</span><span class="stat-val">${fmt(yr.rev/12)}</span></div>
+    <div class="stat-row"><span class="stat-label">月均淨利</span><span class="stat-val">${fmt(yr.np/12)}</span></div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN CALCULATIONS
+// ════════════════════════════════════════════════════════════
+function calcAll(){
+  const rev={
+    facial:S.services.filter(s=>s.type==='做臉').reduce((a,s)=>a+s.fee,0),
+    massage:S.services.filter(s=>s.type==='按摩').reduce((a,s)=>a+s.fee,0),
+    wax:S.services.filter(s=>s.type==='除毛').reduce((a,s)=>a+s.fee,0),
+    pmu:S.services.filter(s=>s.type==='紋繡').reduce((a,s)=>a+s.fee,0),
+    product:S.services.reduce((a,s)=>a+s.prod,0),
+    ep:S.ep.reduce((a,e)=>a+e.pay,0),
+    prepayUse:S.services.reduce((a,s)=>a+s.prepayUse,0),
+  };
+  rev.total=Object.values(rev).reduce((a,v)=>a+v,0);
+  const teachers={};
+  ['珞熙','婉甄','璇璇'].forEach(t=>{
+    const sv=S.services.filter(s=>s.teacher===t);
+    const sr=sv.reduce((a,s)=>a+s.fee,0),pr=sv.reduce((a,s)=>a+s.prod,0),cm=sv.reduce((a,s)=>a+s.commAmt,0);
+    const byType={};
+    if(t==='婉甄')['自帶客','店客','轉介在場','轉介不在場'].forEach(ct=>{
+      byType[ct]=sv.filter(s=>s.ctype===ct).reduce((a,s)=>a+s.fee,0);
+    });
+    teachers[t]={sr,pr,cm,contrib:sr+pr-cm,byType};
+  });
+  const totalComm=Object.values(teachers).reduce((a,t)=>a+t.cm,0);
+  const cogs={
+    sc:S.inventory.filter(i=>i.cat==='保養品').reduce((a,i)=>a+i.amount,0),
+    wx:S.inventory.filter(i=>i.cat==='除毛耗材').reduce((a,i)=>a+i.amount,0),
+    pm:S.inventory.filter(i=>i.cat==='紋繡材料').reduce((a,i)=>a+i.amount,0),
+    other:S.inventory.filter(i=>!['保養品','除毛耗材','紋繡材料'].includes(i.cat)).reduce((a,i)=>a+i.amount,0),
+  };
+  cogs.total=Object.values(cogs).reduce((a,v)=>a+v,0);
+  const gp=rev.total-totalComm-cogs.total;
+  const gpR=rev.total?gp/rev.total:0;
+  const expTotal=Object.values(S.expenses).reduce((a,v)=>a+v,0);
+  const np=gp-expTotal;
+  const npR=rev.total?np/rev.total:0;
+  const prepayNew=S.prepays.reduce((a,p)=>a+p.amount,0);
+  const prepayUsed=S.services.reduce((a,s)=>a+s.prepayUse,0);
+  const prepayClose=S.prepayOpening+prepayNew-prepayUsed;
+  const resRatio=parseFloat(document.getElementById('set-res')?.value||10)/100;
+  const reserve=Math.max(0,np*resRatio);
+  const salary=Math.max(0,np-reserve);
+  const epRev=S.ep.reduce((a,e)=>a+e.pay,0);
+  const epCost=S.ep.reduce((a,e)=>a+e.cost,0);
+  const epDisc=S.ep.reduce((a,e)=>a+(e.list-e.pay),0);
+  return{rev,teachers,totalComm,cogs,gp,gpR,expTotal,np,npR,
+    prepayNew,prepayUsed,prepayClose,reserve,salary,epRev,epCost,epDisc};
+}
+
+function badge(v,good,warn,higher=true){
+  let cls,label;
+  if(higher){cls=v>=good?'bg':v>=warn?'ba':'br';label=v>=good?'🟢 健康':v>=warn?'🟡 注意':'🔴 警戒';}
+  else{cls=v<=good?'bg':v<=warn?'ba':'br';label=v<=good?'🟢 健康':v<=warn?'🟡 注意':'🔴 警戒';}
+  return`<span class="badge ${cls}">${label}</span>`;
+}
+
+// ════════════════════════════════════════════════════════════
+// REFRESH ALL PANELS
+// ════════════════════════════════════════════════════════════
+function refreshAll(){
+  const d=calcAll();
+  // ── DASHBOARD ──
+  document.getElementById('db-sub').textContent=`${currentMonth.replace('-','年')}月即時數據 ｜ ${S.services.length}筆服務`;
+  document.getElementById('db-rev').textContent=fmt(d.rev.total);
+  document.getElementById('db-gp').textContent=pct(d.gpR);
+  document.getElementById('db-gp-b').innerHTML=badge(d.gpR,.3,.2);
+  document.getElementById('db-np').textContent=pct(d.npR);
+  document.getElementById('db-np-b').innerHTML=badge(d.npR,.25,.15);
+  document.getElementById('db-sal').textContent=fmt(d.salary);
+  // alerts
+  const alerts=[];
+  if(d.npR<.10&&d.rev.total>0)alerts.push({t:'r',m:'🔴 淨利率低於10%，需立刻檢討費用結構'});
+  if(d.totalComm/d.rev.total>.75&&d.rev.total>0)alerts.push({t:'w',m:'⚠️ 老師抽成超過75%，工作室幾乎無利潤'});
+  if(d.prepayClose>d.rev.total*3&&d.rev.total>0)alerts.push({t:'w',m:'⚠️ 儲值負債超過月收入300%，建議暫停推儲值'});
+  if(d.gpR>=.3&&d.npR>=.25&&d.rev.total>0)alerts.push({t:'g',m:'🌸 本月財務健康！'});
+  document.getElementById('db-alerts').innerHTML=alerts.map(a=>`<div class="alert alert-${a.t}">${a.m}</div>`).join('');
+  // teacher contrib
+  document.getElementById('db-teacher').innerHTML=
+    ['珞熙','婉甄','璇璇'].map(t=>{
+      const info=d.teachers[t];const cp=d.rev.total?info.contrib/d.rev.total:0;
+      const col=t==='珞熙'?'gold':t==='婉甄'?'sky':'sage';
+      return`<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span class="tt tt-${t==='珞熙'?'l':t==='婉甄'?'w':'x'}">${t}</span>
+          <span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(info.contrib)}</span>
+        </div>
+        <div class="prog"><div class="prog-fill" style="width:${Math.min(100,cp*200)}%;background:var(--${col})"></div></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">服務${fmt(info.sr)} 抽成-${fmt(info.cm)}</div>
+      </div>`;
+    }).join('');
+  // service dist
+  const types=['做臉','按摩','除毛','紋繡','產品'];
+  const keys=['facial','massage','wax','pmu','product'];
+  const cols=['rose','sky','sage','gold','text2'];
+  document.getElementById('db-svc-dist').innerHTML=`<div class="chart-bar-wrap">`+
+    types.map((t,i)=>{
+      const v=d.rev[keys[i]];const p=d.rev.total?v/d.rev.total:0;
+      return`<div class="chart-bar">
+        <div class="chart-bar-label">${t}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${p*100}%;background:var(--${cols[i]})">${p>0.1?fmt(v):''}</div></div>
+        <div class="chart-bar-amt">${p>0?fmt(v):''}</div>
+      </div>`;
+    }).join('')+'</div>';
+  // exp summary
+  document.getElementById('db-exp').innerHTML=`
+    <div class="stat-row"><span class="stat-label">老師抽成</span><span class="stat-val" style="color:var(--rose)">${fmt(d.totalComm)}</span></div>
+    <div class="stat-row"><span class="stat-label">進貨成本</span><span class="stat-val">${fmt(d.cogs.total)}</span></div>
+    <div class="stat-row"><span class="stat-label">營業費用</span><span class="stat-val">${fmt(d.expTotal)}</span></div>
+    <div class="div"></div>
+    <div class="stat-row"><span class="stat-label" style="font-weight:500">總支出</span><span class="stat-val" style="font-weight:500">${fmt(d.totalComm+d.cogs.total+d.expTotal)}</span></div>`;
+  // prepay
+  const ppR=d.rev.total?d.prepayClose/d.rev.total:0;
+  document.getElementById('db-prepay').innerHTML=`
+    <div class="stat-row"><span class="stat-label">期初</span><span class="stat-val">${fmt(S.prepayOpening)}</span></div>
+    <div class="stat-row"><span class="stat-label">新增</span><span class="stat-val">+${fmt(d.prepayNew)}</span></div>
+    <div class="stat-row"><span class="stat-label">核銷</span><span class="stat-val">-${fmt(d.prepayUsed)}</span></div>
+    <div class="div"></div>
+    <div class="stat-row"><span class="stat-label" style="color:var(--gold)">期末負債</span><span class="stat-val" style="color:var(--gold)">${fmt(d.prepayClose)}</span></div>
+    <div>${badge(ppR,2,3,false)}</div>`;
+  // health
+  const healthItems=[
+    ['毛利率',pct(d.gpR),d.gpR>=.3?'bg':d.gpR>=.2?'ba':'br','≥30%'],
+    ['淨利率',pct(d.npR),d.npR>=.25?'bg':d.npR>=.15?'ba':'br','≥25%'],
+    ['抽成佔比',d.rev.total?pct(d.totalComm/d.rev.total):'—',(d.rev.total&&d.totalComm/d.rev.total<=.6)?'bg':(d.rev.total&&d.totalComm/d.rev.total<=.75)?'ba':'br','≤60%'],
+    ['進貨佔比',d.rev.total?pct(d.cogs.total/d.rev.total):'—',(d.rev.total&&d.cogs.total/d.rev.total<=.2)?'bg':'ba','≤20%'],
+  ];
+  document.getElementById('db-health').innerHTML=healthItems.map(([l,v,c,n])=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:12px">${l}</div><div style="font-size:10px;color:var(--text3)">${n}</div></div>
+      <div style="text-align:right">
+        <div style="font-family:'DM Mono',monospace;font-size:13px">${v}</div>
+        <span class="badge ${c}" style="font-size:9px">${c==='bg'?'🟢':c==='ba'?'🟡':'🔴'}</span>
+      </div>
+    </div>`).join('');
+  // ── INVENTORY KPIs ──
+  ['iv-sc','iv-wx','iv-pm','iv-tot'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=fmt([d.cogs.sc,d.cogs.wx,d.cogs.pm,d.cogs.total][i]);
+  });
+  // ── PREPAY PAGE ──
+  const ppo=document.getElementById('pp-open');if(ppo)ppo.textContent=fmt(S.prepayOpening);
+  const ppn=document.getElementById('pp-new');if(ppn)ppn.textContent=fmt(d.prepayNew);
+  const ppc=document.getElementById('pp-close');if(ppc)ppc.textContent=fmt(d.prepayClose);
+  const pph=document.getElementById('pp-health');if(pph)pph.innerHTML=badge(ppR,2,3,false);
+  // ── EP ──
+  const epr=document.getElementById('ep-rev');if(epr)epr.textContent=fmt(d.epRev);
+  const epc=document.getElementById('ep-cost');if(epc)epc.textContent=fmt(d.epCost);
+  const epd=document.getElementById('ep-disc');if(epd)epd.textContent=fmt(d.epDisc);
+  // ── TEACHERS ──
+  const tc=document.getElementById('t-cards');
+  if(tc)tc.innerHTML=['珞熙','婉甄','璇璇'].map(t=>{
+    const info=d.teachers[t];
+    const cls=t==='珞熙'?'tt-l':t==='婉甄'?'tt-w':'tt-x';
+    return`<div class="card">
+      <div style="margin-bottom:10px"><span class="tt ${cls}">${t}</span></div>
+      <div class="stat-row"><span class="stat-label">服務收入</span><span class="stat-val">${fmt(info.sr)}</span></div>
+      <div class="stat-row"><span class="stat-label">抽成支出</span><span class="stat-val" style="color:var(--rose)">${fmt(info.cm)}</span></div>
+      <div class="div"></div>
+      <div class="stat-row"><span class="stat-label" style="font-weight:500">毛貢獻</span><span class="stat-val" style="color:var(--sage);font-weight:500">${fmt(info.contrib)}</span></div>
+    </div>`;
+  }).join('');
+  const twz=document.getElementById('t-wz');
+  if(twz){
+    const wz=d.teachers['婉甄'];
+    twz.innerHTML=`<div class="g2">
+      <div>${['自帶客','店客','轉介在場','轉介不在場'].map(ct=>{
+        const pcts={'自帶客':'50%','店客':'40%','轉介在場':'20%','轉介不在場':'10%'};
+        return`<div class="stat-row"><span class="stat-label"><span class="ct ct-${ct}">${ct}</span> ${pcts[ct]}</span><span class="stat-val">${fmt(wz.byType[ct]||0)}</span></div>`;
+      }).join('')}</div>
+      <div class="alert alert-i">婉甄自帶客佔比：<strong>${wz.sr?pct((wz.byType['自帶客']||0)/wz.sr):'—'}</strong><br>
+      <span style="font-size:11px">自帶客→代表婉甄有自己客群。長期策略：讓自帶客認同沐蜜品牌轉為店客。</span></div>
+    </div>`;
+  }
+  // ── FINANCE P&L ──
+  const pl=document.getElementById('f-pl');
+  if(pl){
+    const plRows=[
+      {l:'▌ 收入',h:true},
+      {l:'做臉',v:d.rev.facial},{l:'按摩',v:d.rev.massage},{l:'除毛',v:d.rev.wax},
+      {l:'紋繡',v:d.rev.pmu},{l:'產品',v:d.rev.product},{l:'員購',v:d.rev.ep},{l:'儲值核銷',v:d.rev.prepayUse},
+      {l:'★ 總收入',v:d.rev.total,bold:true,bg:'var(--surface2)'},
+      {l:'▌ 抽成＆進貨',h:true},
+      {l:'老師抽成',v:-d.totalComm},{l:'進貨成本',v:-d.cogs.total},
+      {l:'★ 毛利',v:d.gp,bold:true,bg:'var(--sage-dim)',pct:d.gpR},
+      {l:'▌ 營業費用',h:true},{l:'費用合計',v:-d.expTotal},
+      {l:'💰 淨利',v:d.np,bold:true,bg:d.np>=0?'rgba(107,158,114,.15)':'rgba(192,64,64,.1)',pct:d.npR,big:true},
+    ];
+    pl.innerHTML=plRows.map(row=>{
+      if(row.h)return`<div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text3);padding:12px 0 4px;text-transform:uppercase">${row.l}</div>`;
+      const vc=row.v<0?'var(--red)':row.bold&&row.v>0?'var(--sage)':'var(--text)';
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;margin-bottom:2px;background:${row.bg||'transparent'}">
+        <span style="font-size:${row.big?'14':'13'}px;font-weight:${row.bold?600:400}">${row.l}</span>
+        <div style="text-align:right">
+          <span style="font-family:'DM Mono',monospace;font-size:${row.big?'15':'13'}px;color:${vc};font-weight:${row.bold?600:400}">${fmt(row.v)}</span>
+          ${row.pct!==undefined?`<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:8px">${pct(Math.abs(row.pct))}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // ── BOSS PAY ──
+  ['bp-np','bp-res','bp-sal','bp-goods','bp-equip','bp-edu'].forEach((id,i)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.textContent=fmt([d.np,d.reserve,d.salary,d.reserve*.5,d.reserve*.3,d.reserve*.2][i]);
+  });
+  const bpm=document.getElementById('bp-miles');
+  if(bpm)bpm.innerHTML=[
+    ['月收入 NT$80,000+',d.rev.total>=80000,'達標後提升定價或加推高毛利項目'],
+    ['月收入 NT$120,000+',d.rev.total>=120000,'開始規劃SOP和老師培訓'],
+    ['淨利率達 25%',d.npR>=.25,'財務健康，可評估擴大規模'],
+    ['老闆月薪 NT$40,000+',d.salary>=40000,'工作室進入穩定獲利期'],
+    ['老闆月薪 NT$60,000+',d.salary>=60000,'考慮租獨立空間或增加人手'],
+  ].map(([l,r,n])=>`<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)">
+    <div style="font-size:20px">${r?'✅':'⭕'}</div>
+    <div><div style="font-size:13px;font-weight:${r?500:400};color:${r?'var(--sage)':'var(--text)'}">${l}</div>
+    <div style="font-size:11px;color:var(--text3)">${n}</div></div>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// EXPORT / BACKUP
+// ════════════════════════════════════════════════════════════
+function dl(content,name,type){
+  const a=document.createElement('a');
+  a.href='data:'+type+';charset=utf-8,\uFEFF'+encodeURIComponent(content);
+  a.download=name;a.click();
+}
+function exportMonthCSV(){
+  const d=calcAll();
+  const rows=[
+    ['沐蜜美學工作室 月度報表',currentMonth],[''],
+    ['=== 服務記錄 ==='],
+    ['日期','老師','客人','類型','客戶類型','服務費','產品','付款','抽成%','抽成金額'],
+    ...S.services.map(s=>[s.date,s.teacher,s.client,s.type,s.ctype,s.fee,s.prod,s.pay,
+      Math.round(s.commPct*100)+'%',Math.round(s.commAmt)]),
+    [''],['=== 財務摘要 ==='],
+    ['總收入',Math.round(d.rev.total)],['老師抽成',Math.round(d.totalComm)],
+    ['進貨成本',Math.round(d.cogs.total)],['毛利',Math.round(d.gp)],['毛利率',pct(d.gpR)],
+    ['營業費用',Math.round(d.expTotal)],['淨利',Math.round(d.np)],['淨利率',pct(d.npR)],
+    ['老闆薪資',Math.round(d.salary)],
+    [''],['=== 進貨記錄 ==='],['日期','分類','品項','金額'],
+    ...S.inventory.map(iv=>[iv.date,iv.cat,iv.item,iv.amount]),
+  ];
+  dl(rows.map(r=>r.join(',')).join('\n'),`沐蜜${currentMonth}月報.csv`,'text/csv');
+}
+function exportFullBackup(){
+  const bk={};
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith('mumi_'))bk[k]=localStorage.getItem(k);}
+  dl(JSON.stringify(bk,null,2),`沐蜜ERP備份_${today()}.json`,'application/json');
+}
+function importBackup(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      Object.entries(data).forEach(([k,v])=>localStorage.setItem(k,v));
+      loadMonth();renderAll();refreshAll();
+      alert('✅ 備份還原成功！');
+    }catch{alert('❌ 檔案格式錯誤');}
+  };
+  r.readAsText(f);
+}
+function clearMonth(){
+  if(confirm('確定清除本月所有資料？此動作無法復原。')){
+    ['svc','pp','inv','ep','cal','ppOpen','expF'].forEach(k=>localStorage.removeItem(SK(k)));
+    S={services:[],prepays:[],inventory:[],ep:[],clients:S.clients,calEvents:[],expenses:{},prepayOpening:0};
+    renderAll();refreshAll();
+  }
+}
+
+function renderAll(){
+  renderServices();renderPrepay();renderInventory();renderEP();renderClients();renderCalendar();
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+document.getElementById('s-date').value=today();
+document.getElementById('pp-date').value=today();
+document.getElementById('iv-date').value=today();
+document.getElementById('ep-date').value=today();
+document.getElementById('cal-date').value=today();
+buildMonthList();
+updateMonthDisplay();
+loadMonth();
+renderAll();
+renderCalendar();
+renderAnnual();
+refreshAll();
+updateClientTypeVisibility();
+</script>
+</body>
+</html>
